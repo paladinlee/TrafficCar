@@ -16,7 +16,15 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="index.html">交通車路線</a>
-            <div class="collapse navbar-collapse">
+
+            <!-- 這顆按鈕在手機會顯示，點擊可展開選單 -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="切換選單">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- 注意這裡要加上 id="navbarNav"，跟 data-bs-target 對應 -->
+            <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="index.html?route=minA">民生線(早)</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.html?route=minB">民生線(晚)</a></li>
