@@ -114,8 +114,18 @@
           <tr>
             <td>${stop.time}</td>
             <td>${stop.place}</td>
-            <td><a href="comgooglemaps://?daddr=${stop.NE}&directionsmode=driving" class="btn btn-sm btn-success">手機</a>&nbsp;&nbsp;&nbsp;<a href="https://www.google.com/maps/dir/?api=1&destination=${stop.NE}&travelmode=driving" target="_empty" class="btn btn-sm btn-primary">瀏覽器</a></td>
-            <td><a href="maps://?daddr=${stop.NE}&dirflg=d"  class="btn btn-sm btn-success">手機</a>&nbsp;&nbsp;&nbsp;<a href="https://maps.apple.com/?daddr=${stop.NE}&dirflg=d" target="_empty" class="btn btn-sm btn-primary">瀏覽器</a></td>
+            <td>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="comgooglemaps://?daddr=${stop.NE}&directionsmode=driving" class="btn btn-sm btn-success">手機</a>
+                <a href="https://www.google.com/maps/dir/?api=1&destination=${stop.NE}&travelmode=driving" target="_blank" class="btn btn-sm btn-primary">瀏覽器</a>
+            </div>
+            </td>
+            <td>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="maps://?daddr=${stop.NE}&dirflg=d" class="btn btn-sm btn-success">手機</a>
+                <a href="https://maps.apple.com/?daddr=${stop.NE}&dirflg=d" target="_blank" class="btn btn-sm btn-primary">瀏覽器</a>
+            </div>
+            </td>
           </tr>
         `);
             });
