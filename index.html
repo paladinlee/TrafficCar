@@ -29,7 +29,8 @@
                     <li class="nav-item"><a class="nav-link" href="index.html?route=minA">民生線(早)</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.html?route=minB">民生線(晚)</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.html?route=trun">重慶線</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html?route=toyan">桃園線</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html?route=toyanA">桃園線(早)</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html?route=toyanB">桃園線(晚)</a></li>
                 </ul>
             </div>
         </div>
@@ -43,7 +44,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>時間</th>
-                        <th>地名</th>
+                        <th>站名</th>
                         <th>Google Map</th>
                         <th>Apple Map</th>
                     </tr>
@@ -105,13 +106,37 @@
                     { "time": "07:40", "place": "內壢交流道" }
                 ]
             },
-            "toyan": {
-                "name": "桃園線",
+            "toyanA": {
+                "name": "桃園線(早)",
                 "stops": [
-                    { "time": "07:20", "place": "桃園車站" },
-                    { "time": "07:50", "place": "中正藝文特區" }
+                    { "time": "06:30", "place": "武陵站","NE":"24.989188797363397,121.28684204310855" },
+                    { "time": "06:40", "place": "內壢站","NE":"24.973198542377137,121.25858031999513" },
+                    { "time": "06:50", "place": "中壢站","NE":"24.955180450890825,121.22262220276085" },
+                    { "time": "06:55", "place": "陽明站","NE":"24.949961986292806,121.21260175256837" },
+                    { "time": "07:00", "place": "中豐站","NE":"24.94022438770063,121.2146051750025" },
+                    { "time": "07:10", "place": "大溪站","NE":"24.896584249835477,121.2619444755453" },
+                    { "time": "08:00", "place": "工研院","NE":"24.77444431182634,121.04781596412035" }
                 ]
-            }
+
+                
+            },
+            "toyanB": {
+                "name": "桃園線(晚)",
+                "stops": [
+                    { "time": "17:03", "place": "71館","NE":"24.772920891313202,121.04672353230211" },
+                    { "time": "17:05", "place": "51館","NE":"24.773892590241648,121.04451168275536" },
+                    { "time": "17:07", "place": "11館","NE":"24.77654010238808,121.04208348243698" },
+                    { "time": "", "place": "大溪站","NE":"24.895638627058577,121.26204997457822" },
+                    { "time": "", "place": "中豐站","NE":"24.94034332999149,121.21463607078891" },
+                    { "time": "", "place": "陽明站","NE":"24.949344796333136,121.21230727520945" },
+                    { "time": "", "place": "中壢站","NE":"24.95525993927724,121.22272559301378" },
+                    { "time": "", "place": "內壢站","NE":"24.972924905070226,121.25818394611817" },
+                    { "time": "", "place": "武陵站","NE":"24.98925308953332,121.28731272341066" },
+                ]
+
+
+
+            }            
         };
 
         // 取得網址參數 route
