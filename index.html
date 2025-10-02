@@ -164,19 +164,33 @@
             <td>${stop.place}</td>
             <td>
             <div class="d-flex flex-wrap gap-2">
-                <a href="comgooglemaps://?daddr=${stop.NE}&directionsmode=driving" class="btn btn-sm btn-success">手機</a>
-                <a href="https://www.google.com/maps/dir/?api=1&destination=${stop.NE}&travelmode=driving" target="_blank" class="btn btn-sm btn-primary">瀏覽器</a>
+                <a href="comgooglemaps://?daddr=${stop.NE}&directionsmode=driving" class="btn btn-sm btn-primary linkMobile" style="display:none;">開啟</a>
+                <a href="https://www.google.com/maps/dir/?api=1&destination=${stop.NE}&travelmode=driving" target="_blank" class="btn btn-sm btn-primary linkDesktop" style="display:none;">開啟</a>
             </div>
             </td>
             <td>
             <div class="d-flex flex-wrap gap-2">
-                <a href="maps://?daddr=${stop.NE}&dirflg=d" class="btn btn-sm btn-success">手機</a>
-                <a href="https://maps.apple.com/?daddr=${stop.NE}&dirflg=d" target="_blank" class="btn btn-sm btn-primary">瀏覽器</a>
+                <a href="maps://?daddr=${stop.NE}&dirflg=d" class="btn btn-sm btn-primary linkMobile" style="display:none;">開啟</a>
+                <a href="https://maps.apple.com/?daddr=${stop.NE}&dirflg=d" target="_blank" class="btn btn-sm btn-primary linkDesktop" style="display:none;">開啟</a>
             </div>
             </td>
           </tr>
         `);
             });
+
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        
+        if (isMobile) {
+            document.querySelectorAll(".linkMobile").forEach(el => {
+            el.style.display = "inline-block";
+            });
+        } else {
+            document.querySelectorAll(".linkDesktop").forEach(el => {
+            el.style.display = "inline-block";
+            });
+        }  
+
         });
     </script>
 
