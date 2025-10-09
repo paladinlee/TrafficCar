@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>乘客端 - 查看交通車</title>
+    <style>
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAAf1R7CgbsN2_RNj9DTnxt0GiFp66cBM"></script>
+</head>
+
+<body>
+    <h2>交通車即時位置</h2>
+    <div id="map"></div>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCC5-P43u1VpAWx9NyX5jDE6U1kw_PeZPo",
+            authDomain: "realtime-8bb89.firebaseapp.com",
+            databaseURL: "https://realtime-8bb89-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "realtime-8bb89",
+            storageBucket: "realtime-8bb89.firebasestorage.app",
+            messagingSenderId: "266775316025",
+            appId: "1:266775316025:web:65b4875009bd18fb39efe8"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat: 25.0330, lng: 121.5654 }, // 預設台北
+            zoom: 14
+        });
+
+        let busMarker = new google.maps.Marker({ map: map, label: "🚌" });
+
+        db.ref("locations/bus001").on("value", snapshot => {
+            const data = snapshot.val();
+            if (data) {
+                const pos = { lat: data.lat, lng: data.lng };
+                console.log(pos);
+                busMarker.setPosition(pos);
+                map.setCenter(pos);
+            }
+        });
+    </script>
+</body>
+
+</html>
