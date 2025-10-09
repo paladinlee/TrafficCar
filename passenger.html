@@ -36,7 +36,14 @@
             zoom: 18
         });
 
-        let busMarker = new google.maps.Marker({ map: map, label: "🚌", title: "交通車" });
+        const busIcon = {
+            url: "https://paladinlee.github.io/TrafficCar/images/bus.png", // 或自己設計的圖
+            scaledSize: new google.maps.Size(48, 48), // 調整大小
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(24, 24) // 圖示中心點
+        };
+
+        let busMarker = new google.maps.Marker({ map: map, icon: busIcon, title: "交通車" });
 
         db.ref("locations/bus001").on("value", snapshot => {
             const data = snapshot.val();
