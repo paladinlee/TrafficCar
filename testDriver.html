@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>司機端 - 上傳位置</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+
+<body>
+    <h2>司機端 - 正在上傳位置...</h2>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCC5-P43u1VpAWx9NyX5jDE6U1kw_PeZPo",
+            authDomain: "realtime-8bb89.firebaseapp.com",
+            databaseURL: "https://realtime-8bb89-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "realtime-8bb89",
+            storageBucket: "realtime-8bb89.firebasestorage.app",
+            messagingSenderId: "266775316025",
+            appId: "1:266775316025:web:65b4875009bd18fb39efe8"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(pos => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                console.log("上傳位置:", lat, lng);
+                db.ref("locations/bus001").set({
+                    lat: lat,
+                    lng: lng,
+                    ts: Date.now()
+                });
+            });
+        } else {
+            alert("瀏覽器不支援 GPS 定位");
+        }
+    </script>
+</body>
+
+</html>
