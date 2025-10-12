@@ -57,6 +57,30 @@
             zoom: 18
         });
 
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Function to set default route based on URL parameter
+        function setDefaultRoute() {
+            const routeType = getUrlParameter('type');
+            const routeSelector = document.getElementById('routeSelector');
+            
+            if (routeType === '1') {
+                routeSelector.value = 'bus001';
+            } else if (routeType === '2') {
+                routeSelector.value = 'bus002';
+            } else if (routeType === '3') {
+                routeSelector.value = 'bus003';
+            }
+            
+            // Trigger change event to update map and Firebase listener
+            if (routeSelector.value !== '') {
+                routeSelector.dispatchEvent(new Event('change'));
+            }
+        }        
+
         const busIcon = {
             url: "https://paladinlee.github.io/TrafficCar/images/bus.png",
             scaledSize: new google.maps.Size(48, 48),
@@ -99,6 +123,9 @@
                 });
             }
         });
+
+        // Set default route when page loads
+        window.addEventListener('load', setDefaultRoute);        
     </script>
 </body>
 
