@@ -51,7 +51,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-
+        const mapElement = document.getElementById("map"); // Define mapElement here
         const map = new google.maps.Map(document.getElementById("map"), {
             //center: { lat: 25.0330, lng: 121.5654 }, // 預設台北
             zoom: 18
