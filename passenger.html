@@ -9,6 +9,16 @@
             height: 100vh;
             width: 100%;
         }
+
+        .hidden {
+            display: none;
+        }
+        .route-selector {
+            margin: 10px;
+            padding: 5px;
+            font-size: 16px;
+        }
+
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -17,6 +27,17 @@
 
 <body>
     <h2>交通車即時位置</h2>
+
+    <!-- Route selector dropdown -->
+    <select id="routeSelector" class="route-selector">
+        <option value="">-- 請選擇路線 --</option>
+        <option value="bus001">民生線</option>
+        <option value="bus002">重慶線</option>
+        <option value="bus003">桃園線</option>
+    </select>
+
+
+
     <div id="map"></div>
     <script>
         const firebaseConfig = {
@@ -45,13 +66,37 @@
 
         let busMarker = new google.maps.Marker({ map: map, icon: busIcon, title: "交通車" });
 
-        db.ref("locations/bus001").on("value", snapshot => {
-            const data = snapshot.val();
-            if (data) {
-                const pos = { lat: data.lat, lng: data.lng };
-                console.log(pos);
-                busMarker.setPosition(pos);
-                map.setCenter(pos);
+        let currentListener = null;
+
+        // Handle route selection change
+        document.getElementById("routeSelector").addEventListener("change", function(e) {
+            const selectedRoute = e.target.value;
+            
+            // Remove previous listener
+            if (currentListener) {
+                currentListener();
+                currentListener = null;
+            }
+            
+            if (selectedRoute === "") {
+                // Hide map for blank selection
+                mapElement.classList.add("hidden");
+                busMarker.setMap(null);
+            } else {
+                // Show map and set up new listener
+                mapElement.classList.remove("hidden");
+                busMarker.setMap(map);
+                
+                // Set up Firebase listener for selected route
+                currentListener = db.ref("locations/" + selectedRoute).on("value", snapshot => {
+                    const data = snapshot.val();
+                    if (data) {
+                        const pos = { lat: data.lat, lng: data.lng };
+                        console.log(pos);
+                        busMarker.setPosition(pos);
+                        map.setCenter(pos);
+                    }
+                });
             }
         });
     </script>
