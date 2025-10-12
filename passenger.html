@@ -66,16 +66,17 @@
 
         let busMarker = new google.maps.Marker({ map: map, icon: busIcon, title: "交通車" });
 
-        let currentListener = null;
+        let currentRef = null; // Track current Firebase reference
+
 
         // Handle route selection change
         document.getElementById("routeSelector").addEventListener("change", function(e) {
             const selectedRoute = e.target.value;
             
             // Remove previous listener
-            if (currentListener) {
-                currentListener();
-                currentListener = null;
+            if (currentRef) {
+                currentRef.off(); // Properly remove Firebase listener
+                currentRef = null;
             }
             
             if (selectedRoute === "") {
@@ -87,16 +88,17 @@
                 mapElement.classList.remove("hidden");
                 busMarker.setMap(map);
                 
-                // Set up Firebase listener for selected route
-                currentListener = db.ref("locations/" + selectedRoute).on("value", snapshot => {
-                    const data = snapshot.val();
-                    if (data) {
-                        const pos = { lat: data.lat, lng: data.lng };
-                        console.log(pos);
-                        busMarker.setPosition(pos);
-                        map.setCenter(pos);
-                    }
-                });
+            // Set up Firebase listener for selected route
+            currentRef = db.ref("locations/" + selectedRoute);
+            currentRef.on("value", snapshot => {
+                const data = snapshot.val();
+                if (data) {
+                    const pos = { lat: data.lat, lng: data.lng };
+                    console.log(pos);
+                    busMarker.setPosition(pos);
+                    map.setCenter(pos);
+                }
+            });
             }
         });
     </script>
