@@ -221,13 +221,24 @@
 
             clearStopMarkers();
 
+            // 取得目前時間（24小時制）
+            const now = new Date();
+            const currentHour = now.getHours();
+            const isMorning = currentHour < 12; // 12:00 前為早上
+
             if (selectedRoute === "bus001") {
-                drawRouteStops("minA", "green");
-                drawRouteStops("minB", "orange");
+                if (isMorning) {
+                    drawRouteStops("minA", "green");
+                } else {
+                    drawRouteStops("minB", "orange");
+                }
             } else if (selectedRoute === "bus003") {
-                drawRouteStops("toyanA", "green");
-                drawRouteStops("toyanB", "orange");
-            }            
+                if (isMorning) {
+                    drawRouteStops("toyanA", "green");
+                } else {
+                    drawRouteStops("toyanB", "orange");
+                }
+            }  
             
             // Remove previous listener
             if (currentRef) {
