@@ -184,7 +184,10 @@
                 const marker = new google.maps.Marker({
                     map: map,
                     position: { lat, lng },
-                    icon: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`,
+                    icon: {
+                        url: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`,
+                        labelOrigin: new google.maps.Point(16, 40) // ← 讓文字在 icon 下方
+                    },
                     title: `${stop.time} ${stop.place}`,
                     label: {
                         text: stop.place,
