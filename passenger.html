@@ -185,7 +185,13 @@
                     map: map,
                     position: { lat, lng },
                     icon: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`,
-                    title: `${stop.time} ${stop.place}`
+                    title: `${stop.time} ${stop.place}`,
+                    label: {
+                        text: stop.place,
+                        color: "red",
+                        fontSize: "12px",
+                        fontWeight: "bold"
+                    }                    
                 });
                 stopMarkers.push(marker);
                 bounds.extend(marker.getPosition());
