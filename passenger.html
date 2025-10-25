@@ -37,9 +37,7 @@
             padding: 8px 15px;
         }
 
-        .hidden {
-            display: none;
-        }
+ 
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -271,13 +269,13 @@
             }
 
             if (selectedRoute === "") {
-                mapElement.classList.add("hidden");
+                mapElement.classList.add("d-none");
                 busMarker.setMap(null);
-                centerBusBtn.classList.add("hidden");
+                centerBusBtn.classList.add("d-none");
             } else {
-                mapElement.classList.remove("hidden");
+                mapElement.classList.remove("d-none");
                 busMarker.setMap(map);
-                centerBusBtn.classList.remove("hidden");
+                centerBusBtn.classList.remove("d-none");
 
                 currentRef = db.ref("locations/" + selectedRoute);
                 currentRef.on("value", snapshot => {
