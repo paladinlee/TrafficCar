@@ -14,13 +14,31 @@
         .hidden {
             display: none;
         }
+
         .route-selector {
             margin: 10px;
             padding: 5px;
             font-size: 16px;
         }
 
+        #centerBusBtn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 5;
+            padding: 6px 12px;
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #centerBusBtn:hover {
+            background-color: #0d47a1;
+        }
     </style>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAAf1R7CgbsN2_RNj9DTnxt0GiFp66cBM"></script>
@@ -29,7 +47,6 @@
 <body>
     <h2>交通車即時位置</h2>
 
-    <!-- Route selector dropdown -->
     <select id="routeSelector" class="route-selector">
         <option value="">-- 請選擇路線 --</option>
         <option value="bus001">民生線</option>
@@ -37,10 +54,11 @@
         <option value="bus003">桃園線</option>
     </select>
 
-
-
+    <button id="centerBusBtn" class="hidden">回到交通車</button>
     <div id="map"></div>
+
     <script>
+        // === Firebase 初始化 ===
         const firebaseConfig = {
             apiKey: "AIzaSyCC5-P43u1VpAWx9NyX5jDE6U1kw_PeZPo",
             authDomain: "realtime-8bb89.firebaseapp.com",
@@ -54,34 +72,32 @@
         const db = firebase.database();
 
         const mapElement = document.getElementById("map");
-        const map = new google.maps.Map(mapElement, {
-            zoom: 16
-        });
+        const centerBusBtn = document.getElementById("centerBusBtn");
 
+        // === 初始化地圖 ===
+        const map = new google.maps.Map(mapElement, { zoom: 16 });
+
+        // === 工具函數 ===
         function getUrlParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name);
         }
 
-        // Function to set default route based on URL parameter
+        // 預設路線設定
         function setDefaultRoute() {
             const routeType = getUrlParameter('type');
             const routeSelector = document.getElementById('routeSelector');
-            
-            if (routeType === '1') {
-                routeSelector.value = 'bus001';
-            } else if (routeType === '2') {
-                routeSelector.value = 'bus002';
-            } else if (routeType === '3') {
-                routeSelector.value = 'bus003';
-            }
-            
-            // Trigger change event to update map and Firebase listener
+
+            if (routeType === '1') routeSelector.value = 'bus001';
+            else if (routeType === '2') routeSelector.value = 'bus002';
+            else if (routeType === '3') routeSelector.value = 'bus003';
+
             if (routeSelector.value !== '') {
                 routeSelector.dispatchEvent(new Event('change'));
             }
-        }        
+        }
 
+        // === Bus Marker ===
         const busIcon = {
             url: "https://paladinlee.github.io/TrafficCar/images/bus.png",
             scaledSize: new google.maps.Size(48, 48),
@@ -89,10 +105,33 @@
             anchor: new google.maps.Point(24, 24)
         };
 
-        let busMarker = new google.maps.Marker({ map: map, icon: busIcon, title: "交通車" },{ map:map,position:{coordinates: { lat:25.051306 , lng: 121.532833 }, color: 'orange', title: "停靠站2"}});
+        let busMarker = new google.maps.Marker({
+            map: map,
+            icon: busIcon,
+            title: "交通車"
+        });
 
+        let stopMarkers = [];
+        let currentRef = null;
 
-        //fix
+        // === 狀態旗標 ===
+        let isFirstUpdate = true;
+        let userMovedMap = false;
+
+        // 偵測使用者是否拖曳地圖
+        map.addListener('dragstart', () => {
+            userMovedMap = true;
+        });
+
+        // 回到交通車按鈕
+        centerBusBtn.addEventListener('click', () => {
+            if (busMarker && busMarker.getPosition()) {
+                map.panTo(busMarker.getPosition());
+                userMovedMap = false;
+            }
+        });
+
+        // === 畫出停靠站 ===
         const routesData = {
             "minA": {
                 "name": "民生線(早)",
@@ -159,34 +198,27 @@
                     { "time": "", "place": "武陵站","NE":"24.98925308953332,121.28731272341066" },
                 ]
             }
-        };
+		};
 
-        let stopMarkers = [];        
-
-
-        // 清除舊的停靠站 marker
         function clearStopMarkers() {
             stopMarkers.forEach(m => m.setMap(null));
             stopMarkers = [];
         }
 
-        // 畫出某條路線的停靠站
         function drawRouteStops(routeKey, color) {
             const route = routesData[routeKey];
             if (!route) return;
-
             const bounds = new google.maps.LatLngBounds();
 
             route.stops.forEach(stop => {
-                if (!stop.NE) return; // 沒有經緯度就跳過
-
+                if (!stop.NE) return;
                 const [lat, lng] = stop.NE.split(',').map(Number);
                 const marker = new google.maps.Marker({
                     map: map,
                     position: { lat, lng },
                     icon: {
                         url: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`,
-                        labelOrigin: new google.maps.Point(16, 40) // ← 讓文字在 icon 下方
+                        labelOrigin: new google.maps.Point(16, 40)
                     },
                     title: `${stop.time} ${stop.place}`,
                     label: {
@@ -194,7 +226,7 @@
                         color: "red",
                         fontSize: "16px",
                         fontWeight: "bold"
-                    }                    
+                    }
                 });
                 stopMarkers.push(marker);
                 bounds.extend(marker.getPosition());
@@ -202,74 +234,61 @@
 
             if (!bounds.isEmpty()) {
                 map.fitBounds(bounds);
-
-                // 延遲一點再設定固定 zoom
-                setTimeout(() => {
-                    map.setZoom(16); // 強制固定縮放比例
-                }, 500);                
+                setTimeout(() => map.setZoom(16), 500);
             }
-        }        
+        }
 
-
-
-        let currentRef = null; // Track current Firebase reference
-
-        // Handle route selection change
-        document.getElementById("routeSelector").addEventListener("change", function(e) {
+        // === 路線切換事件 ===
+        document.getElementById("routeSelector").addEventListener("change", function (e) {
             const selectedRoute = e.target.value;
+            isFirstUpdate = true;
+            userMovedMap = false;
 
             clearStopMarkers();
 
-            // 取得目前時間（24小時制）
+            // 時間判斷早晚
             const now = new Date();
             const currentHour = now.getHours();
-            const isMorning = currentHour < 12; // 12:00 前為早上
+            const isMorning = currentHour < 12;
 
             if (selectedRoute === "bus001") {
-                if (isMorning) {
-                    drawRouteStops("minA", "green");
-                } else {
-                    drawRouteStops("minB", "orange");
-                }
+                drawRouteStops(isMorning ? "minA" : "minB", isMorning ? "green" : "orange");
             } else if (selectedRoute === "bus003") {
-                if (isMorning) {
-                    drawRouteStops("toyanA", "green");
-                } else {
-                    drawRouteStops("toyanB", "orange");
-                }
-            }  
-            
-            // Remove previous listener
+                drawRouteStops(isMorning ? "toyanA" : "toyanB", isMorning ? "green" : "orange");
+            }
+
+            // 移除舊監聽
             if (currentRef) {
-                currentRef.off(); // Properly remove Firebase listener
+                currentRef.off();
                 currentRef = null;
             }
-            
+
             if (selectedRoute === "") {
-                // Hide map for blank selection
                 mapElement.classList.add("hidden");
                 busMarker.setMap(null);
+                centerBusBtn.classList.add("hidden");
             } else {
-                // Show map and set up new listener
                 mapElement.classList.remove("hidden");
                 busMarker.setMap(map);
-                
-                // Set up Firebase listener for selected route
+                centerBusBtn.classList.remove("hidden");
+
                 currentRef = db.ref("locations/" + selectedRoute);
                 currentRef.on("value", snapshot => {
                     const data = snapshot.val();
                     if (data) {
                         const pos = { lat: data.lat, lng: data.lng };
-                        console.log(pos);
                         busMarker.setPosition(pos);
-                        map.setCenter(pos);
+
+                        if (isFirstUpdate && !userMovedMap) {
+                            map.setCenter(pos);
+                            isFirstUpdate = false;
+                        }
                     }
                 });
             }
         });
 
-        // Set default route when page loads
-        window.addEventListener('load', setDefaultRoute);        
+        window.addEventListener('load', setDefaultRoute);
     </script>
 </body>
 
