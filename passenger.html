@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>乘客端 - 查看交通車</title>
-     <!-- ✅ Bootstrap 5 -->
+
+    <!-- ✅ Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        html, body {
+        html,
+        body {
             height: 100%;
             margin: 0;
         }
@@ -19,25 +21,42 @@
             width: 100%;
         }
 
-        /* ✅ 控制列浮在地圖上方 */
+        /* ✅ 控制列：頂端中央浮動 + 自動收縮 */
         #controlBar {
             position: absolute;
             top: 10px;
-            left: 0;
-            width: 100%;
-            z-index: 9999; /* 一定要高於地圖 */
-            padding: 0 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: auto;
         }
 
-        /* ✅ 控制列外觀強化 */
         .control-container {
-            background: rgba(255, 255, 255, 0.85);
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            padding: 10px 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            max-width: 95vw;
+            backdrop-filter: blur(4px); /* ✅ 更高級的半透明效果 */
         }
 
- 
+        /* ✅ 響應式 - 窄螢幕時改為上下排列 */
+        @media (max-width: 600px) {
+            .control-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .control-container select,
+            .control-container button {
+                width: 100%;
+            }
+        }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -46,10 +65,9 @@
 </head>
 
 <body>
-    <h2>交通車即時位置</h2>
-
-    <div id="controlBar" class="d-flex justify-content-center">
-        <div class="control-container d-flex justify-content-between align-items-center w-100" style="max-width:600px;">
+    <!-- ✅ 浮動控制列 -->
+    <div id="controlBar">
+        <div class="control-container">
             <select id="routeSelector" class="form-select w-auto">
                 <option value="">-- 請選擇路線 --</option>
                 <option value="bus001">民生線</option>
@@ -78,35 +96,19 @@
 
         const mapElement = document.getElementById("map");
         const centerBusBtn = document.getElementById("centerBusBtn");
+        const routeSelector = document.getElementById("routeSelector");
 
-        // === 初始化地圖 ===
         const map = new google.maps.Map(mapElement, { zoom: 16 });
 
-        // === 工具函數 ===
-        function getUrlParameter(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
-        }
-
-        // 預設路線設定
-        function setDefaultRoute() {
-            const routeType = getUrlParameter('type');
-            const routeSelector = document.getElementById('routeSelector');
-
-            if (routeType === '1') routeSelector.value = 'bus001';
-            else if (routeType === '2') routeSelector.value = 'bus002';
-            else if (routeType === '3') routeSelector.value = 'bus003';
-
-            if (routeSelector.value !== '') {
-                routeSelector.dispatchEvent(new Event('change'));
-            }
-        }
+        // === 狀態旗標 ===
+        let isFirstUpdate = true;
+        let userMovedMap = false;
+        let currentRef = null;
 
         // === Bus Marker ===
         const busIcon = {
             url: "https://paladinlee.github.io/TrafficCar/images/bus.png",
             scaledSize: new google.maps.Size(48, 48),
-            origin: new google.maps.Point(0, 0),
             anchor: new google.maps.Point(24, 24)
         };
 
@@ -116,21 +118,11 @@
             title: "交通車"
         });
 
-        let stopMarkers = [];
-        let currentRef = null;
+        // === 地圖互動 ===
+        map.addListener('dragstart', () => userMovedMap = true);
 
-        // === 狀態旗標 ===
-        let isFirstUpdate = true;
-        let userMovedMap = false;
-
-        // 偵測使用者是否拖曳地圖
-        map.addListener('dragstart', () => {
-            userMovedMap = true;
-        });
-
-        // 回到交通車按鈕
         centerBusBtn.addEventListener('click', () => {
-            if (busMarker && busMarker.getPosition()) {
+            if (busMarker.getPosition()) {
                 map.panTo(busMarker.getPosition());
                 userMovedMap = false;
             }
@@ -204,6 +196,8 @@
                 ]
             }
 		};
+		
+        let stopMarkers = [];
 
         function clearStopMarkers() {
             stopMarkers.forEach(m => m.setMap(null));
@@ -214,86 +208,58 @@
             const route = routesData[routeKey];
             if (!route) return;
             const bounds = new google.maps.LatLngBounds();
-
             route.stops.forEach(stop => {
-                if (!stop.NE) return;
                 const [lat, lng] = stop.NE.split(',').map(Number);
                 const marker = new google.maps.Marker({
                     map: map,
                     position: { lat, lng },
                     icon: {
-                        url: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`,
-                        labelOrigin: new google.maps.Point(16, 40)
+                        url: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`
                     },
-                    title: `${stop.time} ${stop.place}`,
-                    label: {
-                        text: stop.place,
-                        color: "red",
-                        fontSize: "16px",
-                        fontWeight: "bold"
-                    }
+                    title: stop.place
                 });
                 stopMarkers.push(marker);
                 bounds.extend(marker.getPosition());
             });
-
-            if (!bounds.isEmpty()) {
-                map.fitBounds(bounds);
-                setTimeout(() => map.setZoom(16), 500);
-            }
+            map.fitBounds(bounds);
         }
 
         // === 路線切換事件 ===
-        document.getElementById("routeSelector").addEventListener("change", function (e) {
+        routeSelector.addEventListener("change", e => {
             const selectedRoute = e.target.value;
             isFirstUpdate = true;
             userMovedMap = false;
 
             clearStopMarkers();
 
-            // 時間判斷早晚
-            const now = new Date();
-            const currentHour = now.getHours();
-            const isMorning = currentHour < 12;
-
-            if (selectedRoute === "bus001") {
-                drawRouteStops(isMorning ? "minA" : "minB", isMorning ? "green" : "orange");
-            } else if (selectedRoute === "bus003") {
-                drawRouteStops(isMorning ? "toyanA" : "toyanB", isMorning ? "green" : "orange");
-            }
-
-            // 移除舊監聽
             if (currentRef) {
                 currentRef.off();
                 currentRef = null;
             }
 
             if (selectedRoute === "") {
-                mapElement.classList.add("d-none");
-                busMarker.setMap(null);
                 centerBusBtn.classList.add("d-none");
-            } else {
-                mapElement.classList.remove("d-none");
-                busMarker.setMap(map);
-                centerBusBtn.classList.remove("d-none");
-
-                currentRef = db.ref("locations/" + selectedRoute);
-                currentRef.on("value", snapshot => {
-                    const data = snapshot.val();
-                    if (data) {
-                        const pos = { lat: data.lat, lng: data.lng };
-                        busMarker.setPosition(pos);
-
-                        if (isFirstUpdate && !userMovedMap) {
-                            map.setCenter(pos);
-                            isFirstUpdate = false;
-                        }
-                    }
-                });
+                busMarker.setMap(null);
+                return;
             }
-        });
 
-        window.addEventListener('load', setDefaultRoute);
+            busMarker.setMap(map);
+            centerBusBtn.classList.remove("d-none");
+
+            // Firebase 資料監聽
+            currentRef = db.ref("locations/" + selectedRoute);
+            currentRef.on("value", snapshot => {
+                const data = snapshot.val();
+                if (data) {
+                    const pos = { lat: data.lat, lng: data.lng };
+                    busMarker.setPosition(pos);
+                    if (isFirstUpdate && !userMovedMap) {
+                        map.setCenter(pos);
+                        isFirstUpdate = false;
+                    }
+                }
+            });
+        });
     </script>
 </body>
 
