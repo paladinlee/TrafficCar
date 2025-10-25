@@ -44,6 +44,9 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(6px);
     }
+    
+    html { font-size: 16px; }
+
 
     select, button {
       font-size: 16px !important;
@@ -264,7 +267,13 @@
     }
 
     window.addEventListener("pageshow", e=>{
-      if(e.persisted){ document.body.style.zoom="100%"; repositionControlBar(); google.maps.event.trigger(map,'resize'); }
+        if(e.persisted){
+            document.body.style.zoom = "100%";
+            repositionControlBar();
+            google.maps.event.trigger(map,'resize');
+            // 強制再小延遲一次
+            setTimeout(()=> document.body.style.zoom="100%", 300);
+        }      
     });
     window.addEventListener('orientationchange', repositionControlBar);
     window.addEventListener('resize', repositionControlBar);
