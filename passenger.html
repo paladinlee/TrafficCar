@@ -104,7 +104,10 @@
     const routeSelector = document.getElementById("routeSelector");
     const controlBar = document.getElementById("controlBar");
 
-    const map = new google.maps.Map(mapEl, { zoom: 16 });
+    const map = new google.maps.Map(mapEl, { zoom: 16,
+        mapTypeControl: false,     // 🚫 隱藏「地圖 / 衛星」切換
+        streetViewControl: false  // （可選）隱藏街景小人
+     });
 
     let isFirstUpdate = true;
     let userMovedMap = false;
