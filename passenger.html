@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>乘客端 - 查看交通車</title>
+  <title>交通車位置</title>
 
   <!-- ✅ Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -65,6 +65,7 @@
     }
   </style>
 
+  <script src="stopsinfo.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAAf1R7CgbsN2_RNj9DTnxt0GiFp66cBM"></script>
@@ -129,74 +130,7 @@
       }
     });
 
-	// === 畫出停靠站 ===
-	const routesData = {
-		"minA": {
-			"name": "民生線(早)",
-			"stops": [
-				{ "time": "06:20", "place": "民生活動中心", "NE": "25.059271437032145,121.56358211908851" },
-				{ "time": "06:25", "place": "南京松江捷運2號出口", "NE": "25.051306,121.532833" },
-				{ "time": "06:33", "place": "富邦銀行", "NE": "25.032814437017937,121.53272406660767" },
-				{ "time": "06:35", "place": "懷恩堂", "NE": "25.01778187784632,121.53337590495687" },
-				{ "time": "06:38", "place": "台大活動中心對面", "NE": "25.012779593343435,121.53607488211394" },
-				{ "time": "06:45", "place": "秀朗國小對面", "NE": "24.99991455208375,121.52115350315138" },
-				{ "time": "06:50", "place": "景平路", "NE": "24.992867569562854,121.5111794012165" },
-				{ "time": "06:55", "place": "景安捷運站", "NE": "24.993658370523,121.50484014313092" },
-				{ "time": "06:58", "place": "圓通路口", "NE": "24.994003147253167,121.4959269239468" },
-				{ "time": "07:00", "place": "中正路488號", "NE": "24.994396136160542,121.48924560522225" },
-				{ "time": "07:55", "place": "74館前面", "NE": "24.773298360553607,121.0470121072169" },
-				{ "time": "07:57", "place": "51館", "NE": "24.773885053363276,121.04450851525927" },
-				{ "time": "07:59", "place": "22館", "NE": "24.776282129956005,121.04331336066015" },
-				{ "time": "08:00", "place": "10P停車場", "NE": "24.772960106349874,121.04733012843961" }
-			]
-		},
-		"minB": {
-			"name": "民生線(晚)",
-			"stops": [
-				{ "time": "17:05", "place": "64館","NE":"24.77432254848808,121.04683928028544" },
-				{ "time": "17:07", "place": "24館","NE":"24.776447452891045,121.04390463440663" },
-				{ "time": "17:09", "place": "51館","NE":"24.774032344077646,121.04431724442647" },
-				{ "time": "18:00", "place": "中和交流道口","NE":"24.99416555873825,121.48819918705665" },
-				{ "time": "18:02", "place": "圓通路口","NE":"24.99369119257283,121.49618487165249" },
-				{ "time": "18:05", "place": "景安捷運站","NE":"24.993415515201274,121.50385648276482" },
-				{ "time": "18:08", "place": "景平路薑母鴨","NE":"24.992523680209786,121.512094656228" },
-				{ "time": "18:13", "place": "成功路得和路","NE":"24.99889916405774,121.52670233385945" },
-				{ "time": "18:16", "place": "福和橋","NE":"25.010620360698923,121.53558533729586" },
-				{ "time": "18:17", "place": "台大公館捷運站","NE":"25.013382532089253,121.53592728644752" },
-				{ "time": "18:19", "place": "台大門口","NE":"25.01648795862203,121.53290311237788" },
-				{ "time": "18:24", "place": "新生南路信義路","NE":"25.03298755727295,121.53306143661185" },
-				{ "time": "18:27", "place": "新生南路濟南路","NE":"25.039930533254978,121.53293061382041" },
-				{ "time": "18:32", "place": "松江南京","NE":"25.051256565773375,121.53311739512903" },
-				{ "time": "18:40", "place": "民生東三民路","NE":"25.058645253348516,121.56234366416267" },
-			]
-		},
-		"toyanA": {
-			"name": "桃園線(早)",
-			"stops": [
-				{ "time": "06:30", "place": "武陵站","NE":"24.989188797363397,121.28684204310855" },
-				{ "time": "06:40", "place": "內壢站","NE":"24.973198542377137,121.25858031999513" },
-				{ "time": "06:50", "place": "中壢站","NE":"24.955180450890825,121.22262220276085" },
-				{ "time": "06:55", "place": "陽明站","NE":"24.949961986292806,121.21260175256837" },
-				{ "time": "07:00", "place": "中豐站","NE":"24.94022438770063,121.2146051750025" },
-				{ "time": "07:10", "place": "大溪站","NE":"24.896584249835477,121.2619444755453" },
-				{ "time": "08:00", "place": "工研院","NE":"24.77444431182634,121.04781596412035" }
-			]
-		},
-		"toyanB": {
-			"name": "桃園線(晚)",
-			"stops": [
-				{ "time": "17:03", "place": "71館","NE":"24.772920891313202,121.04672353230211" },
-				{ "time": "17:05", "place": "51館","NE":"24.773892590241648,121.04451168275536" },
-				{ "time": "17:07", "place": "11館","NE":"24.77654010238808,121.04208348243698" },
-				{ "time": "", "place": "大溪站","NE":"24.895638627058577,121.26204997457822" },
-				{ "time": "", "place": "中豐站","NE":"24.94034332999149,121.21463607078891" },
-				{ "time": "", "place": "陽明站","NE":"24.949344796333136,121.21230727520945" },
-				{ "time": "", "place": "中壢站","NE":"24.95525993927724,121.22272559301378" },
-				{ "time": "", "place": "內壢站","NE":"24.972924905070226,121.25818394611817" },
-				{ "time": "", "place": "武陵站","NE":"24.98925308953332,121.28731272341066" },
-			]
-		}
-	};
+	
     let stopMarkers = [];
     function clearStopMarkers(){ stopMarkers.forEach(m=>m.setMap(null)); stopMarkers = []; }
     function drawRouteStops(routeKey, color){
@@ -206,13 +140,21 @@
         const [lat,lng] = stop.NE.split(',').map(Number);
         const marker = new google.maps.Marker({
           map, position:{lat,lng},
-          icon:{ url:`http://maps.google.com/mapfiles/ms/icons/${color}-dot.png` },
-          title: stop.place
+          icon:{ url:`http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`,
+            labelOrigin: new google.maps.Point(16, 40) // ← 讓文字在 icon 下方  
+            },
+          title: stop.place,
+          label: {
+              text: stop.place,
+              color: "red",
+              fontSize: "12px",
+              fontWeight: "bold"
+          }            
         });
         stopMarkers.push(marker);
         bounds.extend(marker.getPosition());
       });
-      if(!bounds.isEmpty()){ map.fitBounds(bounds); setTimeout(()=> map.setZoom(16), 500); }
+      if(!bounds.isEmpty()){ setTimeout(()=> map.setZoom(16), 500); }
     }
 
     // === 路線選擇 ===
@@ -230,8 +172,21 @@
 
       const hour = new Date().getHours();
       const isMorning = hour < 12;
-      if(selectedRoute === "bus001"){ drawRouteStops(isMorning?"minA":"minA","green"); }
-      if(selectedRoute === "bus003"){ drawRouteStops(isMorning?"toyanA":"toyanA","green"); }
+
+      if (selectedRoute === "bus001") {
+          if (isMorning) {
+              drawRouteStops("minA", "green");
+          } else {
+              drawRouteStops("minB", "orange");
+          }
+      } else if (selectedRoute === "bus003") {
+          if (isMorning) {
+              drawRouteStops("toyanA", "green");
+          } else {
+              drawRouteStops("toyanB", "orange");
+          }
+      }  
+      
 
       busMarker.setMap(map);
       centerBusBtn.classList.remove("d-none");
