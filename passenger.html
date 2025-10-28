@@ -1,241 +1,268 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>交通車位置</title>
+    <meta charset="utf-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>交通車位置</title>
 
-  <!-- ✅ Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- ✅ Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <style>
-    html, body {
-      height: 100%; margin: 0; padding: 0;
-      background: #f5f5f5;
-      touch-action: manipulation;
-      -webkit-text-size-adjust: 100%;
-    }
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
+        }
 
-    #map { height: 100%; width: 100%; background: #ccc; }
+        #map {
+            height: 100%;
+            width: 100%;
+            background: #ccc;
+        }
 
-    /* ✅ 頂端中央浮動控制列 */
-    #controlBar {
-      position: fixed;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%) scale(1);
-      z-index: 9999;
-      width: auto;
-      max-width: 95vw;
-      transition: transform 0.3s ease;
-      pointer-events: none;
-    }
+        /* ✅ 頂端中央浮動控制列 */
+        #controlBar {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%) scale(1);
+            z-index: 9999;
+            width: auto;
+            max-width: 95vw;
+            transition: transform 0.3s ease;
+            pointer-events: none;
+        }
 
-    .control-container {
-      pointer-events: auto;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 15px;
-      background: rgba(255, 255, 255, 0.92);
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(6px);
-    }
-    
-    html { font-size: 16px; }
+        .control-container {
+            pointer-events: auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(6px);
+        }
+
+        html {
+            font-size: 16px;
+        }
 
 
-    select, button {
-      font-size: 16px !important;
-      -webkit-text-size-adjust: 100%;
-    }
+        select,
+        button {
+            font-size: 16px !important;
+            -webkit-text-size-adjust: 100%;
+        }
 
-    @media (max-width: 600px) {
-      .control-container {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .control-container select,
-      .control-container button {
-        width: 100%;
-      }
-    }
-  </style>
+        @media (max-width: 600px) {
+            .control-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
 
-  <script src="stopsinfo.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAAf1R7CgbsN2_RNj9DTnxt0GiFp66cBM"></script>
+            .control-container select,
+            .control-container button {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <script src="stopsinfo.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAAf1R7CgbsN2_RNj9DTnxt0GiFp66cBM"></script>
+
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-11X3MFQ0PN"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-11X3MFQ0PN');
+    </script>
 </head>
 
 <body>
-  <div id="controlBar">
-    <div class="control-container">
-      <select id="routeSelector" class="form-select w-auto">
-        <option value="">-- 請選擇路線 --</option>
-        <option value="bus001">民生線</option>
-        <option value="bus002">重慶線</option>
-        <option value="bus003">桃園線</option>
-      </select>
-      <button id="centerBusBtn" class="btn btn-primary d-none">回到交通車</button>
+    <div id="controlBar">
+        <div class="control-container">
+            <select id="routeSelector" class="form-select w-auto">
+                <option value="">-- 請選擇路線 --</option>
+                <option value="bus001">民生線</option>
+                <option value="bus002">重慶線</option>
+                <option value="bus003">桃園線</option>
+            </select>
+            <button id="centerBusBtn" class="btn btn-primary d-none">回到交通車</button>
+        </div>
     </div>
-  </div>
 
-  <div id="map"></div>
+    <div id="map"></div>
 
-  <script>
-    // === Firebase 初始化 ===
-    const firebaseConfig = {
-      apiKey: "AIzaSyCC5-P43u1VpAWx9NyX5jDE6U1kw_PeZPo",
-      authDomain: "realtime-8bb89.firebaseapp.com",
-      databaseURL: "https://realtime-8bb89-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "realtime-8bb89",
-      storageBucket: "realtime-8bb89.firebasestorage.app",
-      messagingSenderId: "266775316025",
-      appId: "1:266775316025:web:65b4875009bd18fb39efe8"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    <script>
+        // === Firebase 初始化 ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyCC5-P43u1VpAWx9NyX5jDE6U1kw_PeZPo",
+            authDomain: "realtime-8bb89.firebaseapp.com",
+            databaseURL: "https://realtime-8bb89-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "realtime-8bb89",
+            storageBucket: "realtime-8bb89.firebasestorage.app",
+            messagingSenderId: "266775316025",
+            appId: "1:266775316025:web:65b4875009bd18fb39efe8"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    const mapEl = document.getElementById("map");
-    const centerBusBtn = document.getElementById("centerBusBtn");
-    const routeSelector = document.getElementById("routeSelector");
-    const controlBar = document.getElementById("controlBar");
+        const mapEl = document.getElementById("map");
+        const centerBusBtn = document.getElementById("centerBusBtn");
+        const routeSelector = document.getElementById("routeSelector");
+        const controlBar = document.getElementById("controlBar");
 
-    const map = new google.maps.Map(mapEl, { zoom: 16,
-        mapTypeControl: false,     // 🚫 隱藏「地圖 / 衛星」切換
-        streetViewControl: false  // （可選）隱藏街景小人
-     });
-
-    let isFirstUpdate = true;
-    let userMovedMap = false;
-    let currentRef = null;
-
-    const busIcon = {
-      url: "https://paladinlee.github.io/TrafficCar/images/bus.png",
-      scaledSize: new google.maps.Size(48, 48),
-      anchor: new google.maps.Point(24, 24)
-    };
-
-    let busMarker = new google.maps.Marker({ map, icon: busIcon, title: "交通車" });
-    map.addListener('dragstart', () => userMovedMap = true);
-
-    centerBusBtn.addEventListener('click', () => {
-      if (busMarker.getPosition()) {
-        map.panTo(busMarker.getPosition());
-        userMovedMap = false;
-      }
-    });
-
-	
-    let stopMarkers = [];
-    function clearStopMarkers(){ stopMarkers.forEach(m=>m.setMap(null)); stopMarkers = []; }
-    function drawRouteStops(routeKey, color){
-      const route = routesData[routeKey]; if(!route) return;
-      const bounds = new google.maps.LatLngBounds();
-      route.stops.forEach(stop=>{
-        const [lat,lng] = stop.NE.split(',').map(Number);
-        const marker = new google.maps.Marker({
-          map, position:{lat,lng},
-          icon:{ url:`http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`,
-            labelOrigin: new google.maps.Point(16, 40) // ← 讓文字在 icon 下方  
-            },
-          title: stop.place,
-          label: {
-              text: stop.place,
-              color: "red",
-              fontSize: "12px",
-              fontWeight: "bold"
-          }            
+        const map = new google.maps.Map(mapEl, {
+            zoom: 16,
+            mapTypeControl: false,     // 🚫 隱藏「地圖 / 衛星」切換
+            streetViewControl: false  // （可選）隱藏街景小人
         });
-        stopMarkers.push(marker);
-        bounds.extend(marker.getPosition());
-      });
-      if(!bounds.isEmpty()){ setTimeout(()=> map.setZoom(16), 500); }
-    }
 
-    // === 路線選擇 ===
-    routeSelector.addEventListener("change", e=>{
-      const selectedRoute = e.target.value;
-      isFirstUpdate = true; userMovedMap = false;
-      clearStopMarkers();
-      if(currentRef){ currentRef.off(); currentRef = null; }
+        let isFirstUpdate = true;
+        let userMovedMap = false;
+        let currentRef = null;
 
-      if(selectedRoute === ""){
-        centerBusBtn.classList.add("d-none");
-        busMarker.setMap(null);
-        return;
-      }
+        const busIcon = {
+            url: "https://paladinlee.github.io/TrafficCar/images/bus.png",
+            scaledSize: new google.maps.Size(48, 48),
+            anchor: new google.maps.Point(24, 24)
+        };
 
-      const hour = new Date().getHours();
-      const isMorning = hour < 12;
+        let busMarker = new google.maps.Marker({ map, icon: busIcon, title: "交通車" });
+        map.addListener('dragstart', () => userMovedMap = true);
 
-      if (selectedRoute === "bus001") {
-          if (isMorning) {
-              drawRouteStops("minA", "green");
-          } else {
-              drawRouteStops("minB", "orange");
-          }
-      } else if (selectedRoute === "bus003") {
-          if (isMorning) {
-              drawRouteStops("toyanA", "green");
-          } else {
-              drawRouteStops("toyanB", "orange");
-          }
-      }  
-      
+        centerBusBtn.addEventListener('click', () => {
+            if (busMarker.getPosition()) {
+                map.panTo(busMarker.getPosition());
+                userMovedMap = false;
+            }
+        });
 
-      busMarker.setMap(map);
-      centerBusBtn.classList.remove("d-none");
 
-      currentRef = db.ref("locations/" + selectedRoute);
-      currentRef.on("value", snap=>{
-        const data = snap.val();
-        if(data){
-          const pos = {lat:data.lat, lng:data.lng};
-          busMarker.setPosition(pos);
-          if(isFirstUpdate && !userMovedMap){ map.setCenter(pos); isFirstUpdate=false; }
+        let stopMarkers = [];
+        function clearStopMarkers() { stopMarkers.forEach(m => m.setMap(null)); stopMarkers = []; }
+        function drawRouteStops(routeKey, color) {
+            const route = routesData[routeKey]; if (!route) return;
+            const bounds = new google.maps.LatLngBounds();
+            route.stops.forEach(stop => {
+                const [lat, lng] = stop.NE.split(',').map(Number);
+                const marker = new google.maps.Marker({
+                    map, position: { lat, lng },
+                    icon: {
+                        url: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`,
+                        labelOrigin: new google.maps.Point(16, 40) // ← 讓文字在 icon 下方  
+                    },
+                    title: stop.place,
+                    label: {
+                        text: stop.place,
+                        color: "red",
+                        fontSize: "12px",
+                        fontWeight: "bold"
+                    }
+                });
+                stopMarkers.push(marker);
+                bounds.extend(marker.getPosition());
+            });
+            if (!bounds.isEmpty()) { setTimeout(() => map.setZoom(16), 500); }
         }
-      });
-    });
 
-    // === URL 參數自動選路線 ===
-    function setDefaultRoute() {
-      const params = new URLSearchParams(window.location.search);
-      const type = params.get("type");
-      if (type === "1") routeSelector.value = "bus001";
-      else if (type === "2") routeSelector.value = "bus002";
-      else if (type === "3") routeSelector.value = "bus003";
-      if (routeSelector.value !== "") routeSelector.dispatchEvent(new Event("change"));
-    }
+        // === 路線選擇 ===
+        routeSelector.addEventListener("change", e => {
+            const selectedRoute = e.target.value;
+            isFirstUpdate = true; userMovedMap = false;
+            clearStopMarkers();
+            if (currentRef) { currentRef.off(); currentRef = null; }
 
-    // === 旋轉 / 重新載入自動修正 ===
-    function repositionControlBar(){
-      controlBar.style.transition="none";
-      controlBar.style.left="50%";
-      controlBar.style.transform="translateX(-50%) scale(1)";
-      if(window.matchMedia("(orientation: landscape)").matches){
-        controlBar.style.transform="translateX(-50%) scale(0.85)";
-      }
-      google.maps.event.trigger(map,'resize');
-      setTimeout(()=> controlBar.style.transition="transform 0.3s ease",200);
-    }
+            if (selectedRoute === "") {
+                centerBusBtn.classList.add("d-none");
+                busMarker.setMap(null);
+                return;
+            }
 
-    window.addEventListener("pageshow", e=>{
-        if(e.persisted){
-            document.body.style.zoom = "100%";
-            repositionControlBar();
-            google.maps.event.trigger(map,'resize');
-            // 強制再小延遲一次
-            setTimeout(()=> document.body.style.zoom="100%", 300);
-        }      
-    });
-    window.addEventListener('orientationchange', repositionControlBar);
-    window.addEventListener('resize', repositionControlBar);
-    window.addEventListener('load', ()=>{ repositionControlBar(); setDefaultRoute(); });
-  </script>
+            const hour = new Date().getHours();
+            const isMorning = hour < 12;
+
+            if (selectedRoute === "bus001") {
+                if (isMorning) {
+                    drawRouteStops("minA", "green");
+                } else {
+                    drawRouteStops("minB", "orange");
+                }
+            } else if (selectedRoute === "bus003") {
+                if (isMorning) {
+                    drawRouteStops("toyanA", "green");
+                } else {
+                    drawRouteStops("toyanB", "orange");
+                }
+            }
+
+
+            busMarker.setMap(map);
+            centerBusBtn.classList.remove("d-none");
+
+            currentRef = db.ref("locations/" + selectedRoute);
+            currentRef.on("value", snap => {
+                const data = snap.val();
+                if (data) {
+                    const pos = { lat: data.lat, lng: data.lng };
+                    busMarker.setPosition(pos);
+                    if (isFirstUpdate && !userMovedMap) { map.setCenter(pos); isFirstUpdate = false; }
+                }
+            });
+        });
+
+        // === URL 參數自動選路線 ===
+        function setDefaultRoute() {
+            const params = new URLSearchParams(window.location.search);
+            const type = params.get("type");
+            if (type === "1") routeSelector.value = "bus001";
+            else if (type === "2") routeSelector.value = "bus002";
+            else if (type === "3") routeSelector.value = "bus003";
+            if (routeSelector.value !== "") routeSelector.dispatchEvent(new Event("change"));
+        }
+
+        // === 旋轉 / 重新載入自動修正 ===
+        function repositionControlBar() {
+            controlBar.style.transition = "none";
+            controlBar.style.left = "50%";
+            controlBar.style.transform = "translateX(-50%) scale(1)";
+            if (window.matchMedia("(orientation: landscape)").matches) {
+                controlBar.style.transform = "translateX(-50%) scale(0.85)";
+            }
+            google.maps.event.trigger(map, 'resize');
+            setTimeout(() => controlBar.style.transition = "transform 0.3s ease", 200);
+        }
+
+        window.addEventListener("pageshow", e => {
+            if (e.persisted) {
+                document.body.style.zoom = "100%";
+                repositionControlBar();
+                google.maps.event.trigger(map, 'resize');
+                // 強制再小延遲一次
+                setTimeout(() => document.body.style.zoom = "100%", 300);
+            }
+        });
+        window.addEventListener('orientationchange', repositionControlBar);
+        window.addEventListener('resize', repositionControlBar);
+        window.addEventListener('load', () => { repositionControlBar(); setDefaultRoute(); });
+    </script>
 </body>
+
 </html>
