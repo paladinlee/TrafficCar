@@ -261,7 +261,62 @@
         });
         window.addEventListener('orientationchange', repositionControlBar);
         window.addEventListener('resize', repositionControlBar);
-        window.addEventListener('load', () => { repositionControlBar(); setDefaultRoute(); });
+
+        // === 顯示使用者目前位置 ===
+        let myLocationMarker = null;
+
+        function showMyLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(
+                    position => {
+                        const myPos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+
+                        if (!myLocationMarker) {
+                            myLocationMarker = new google.maps.Marker({
+                                map,
+                                position: myPos,
+                                icon: {
+                                    path: google.maps.SymbolPath.CIRCLE,
+                                    scale: 8,
+                                    fillColor: '#4285F4',
+                                    fillOpacity: 0.9,
+                                    strokeColor: 'white',
+                                    strokeWeight: 2,
+                                    labelOrigin: new google.maps.Point(0, -15) // 🔹調整文字位置
+                                },
+                                title: "我的位置",
+                                label: {
+                                    text: "我的位置",
+                                    color: "red",
+                                    fontSize: "12px",
+                                    fontWeight: "bold"
+                                }
+                            });
+                        } else {
+                            myLocationMarker.setPosition(myPos);
+                        }
+
+                        // 第一次更新時自動置中
+                        if (isFirstUpdate && !userMovedMap) {
+                            map.setCenter(myPos);
+                            isFirstUpdate = false;
+                        }
+                    },
+                    error => {
+                        console.warn("無法取得目前位置:", error.message);
+                    },
+                    { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+                );
+            } else {
+                alert("您的瀏覽器不支援 GPS 位置功能。");
+            }
+        }
+
+
+        window.addEventListener('load', () => { repositionControlBar(); setDefaultRoute(); showMyLocation(); });
     </script>
 </body>
 
