@@ -41,6 +41,7 @@
                     <li class="nav-item"><a class="nav-link" href="index.html?route=trun">重慶線</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.html?route=toyanA">桃園線(早)</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.html?route=toyanB">桃園線(晚)</a></li>
+                    <li class="nav-item"><a class="nav-link" href="passenger.html">即時位置</a></li>
                 </ul>
             </div>
         </div>
@@ -166,6 +167,31 @@
 
             $("#routeTitle").text(route.name + " - 時刻表");
             $("#routeTable").empty();
+
+            // 根據路線名稱設定對應 type
+            let typeParam = "";
+            switch (route.name) {
+                case "民生線(早)":
+                case "民生線(晚)":
+                    typeParam = "1";
+                    break;
+                case "重慶線":
+                    typeParam = "2";
+                    break;
+                case "桃園線(早)":
+                case "桃園線(晚)":
+                    typeParam = "3";
+                    break;
+                default:
+                    typeParam = "";
+            }
+
+            if (typeParam) {
+                $("#routeTitle").html(
+                    `<a href="passenger.html?type=${typeParam}" class="text-decoration-none text-primary" target="_blank">${route.name} - 時刻表</a>`
+                );
+            }
+
 
             route.stops.forEach(stop => {
                 $("#routeTable").append(`
